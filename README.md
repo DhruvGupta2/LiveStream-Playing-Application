@@ -67,93 +67,95 @@ project-root/
 
 
 ```
-How to Run the Project
+## ⚙️ Requirements
+
+Ensure you have the following installed on your system:
+
+- Node.js (for Frontend)
+- Python 3 (for Backend)
+- FFmpeg (must be added to your system PATH)
+- MongoDB Atlas account (connection string required)
+
+Check if FFmpeg is installed:
+
+```
+ffmpeg -version
+▶️ How to Run the Project
 1️⃣ Backend Setup
+Navigate to the backend folder, install dependencies, and start the server:
+
 cd backend
 pip install flask flask-cors flask-pymongo dnspython
 python app.py
-Backend runs at:
+Backend runs on:
+👉 http://localhost:5000
 
-http://localhost:5000
 2️⃣ Frontend Setup
+Navigate to the frontend folder, install dependencies, and start the development server:
+
 cd frontend
 npm install
 npm install axios hls.js react-rnd
 npm run dev
-Frontend runs at:
-
-http://localhost:5173
+Frontend runs on:
+👉 http://localhost:5173
+```
 3️⃣ Using the Application
-Open http://localhost:5173
+Open your browser and go to: http://localhost:5173
 
-Paste an RTSP URL
+Paste a valid RTSP URL in the input field
 
 Click Play Livestream
 
-Livestream starts
+The stream should start after a brief buffering period
 
-Add text or images
+Manage Overlays:
+Add text or images using the controls
 
-Drag, resize, edit, or delete overlays
+Drag, resize, edit, or delete overlays directly on the video player
 
-Refresh page → overlays remain (MongoDB)
+Refresh the page to see that your overlays remain saved (fetched from MongoDB)
 
 🔁 RTSP Support Explanation
-Browsers cannot directly play RTSP streams.
+Modern browsers do not support RTSP directly. This system uses the following pipeline:
 
-This system uses the following pipeline:
-
-RTSP Camera / Stream
-        ↓
-     FFmpeg
-        ↓
-   HLS (.m3u8)
-        ↓
-     Flask
-        ↓
-     React (Browser)
-The backend dynamically starts FFmpeg using the RTSP URL provided by the user and converts it into HLS, which is then played in the browser.
+mermaid
+Copy code
+graph LR
+A[RTSP Camera / Stream] -->|Input| B[FFmpeg]
+B -->|Convert| C[HLS (.m3u8)]
+C -->|Serve| D[Flask Backend]
+D -->|Play| E[React Browser App]
+Process:
+The backend dynamically starts an FFmpeg process using the RTSP URL provided by the user. This converts the stream into HLS segments, which are then served to the React application via HLS.js.
 
 🔗 API Endpoints
 Method	Endpoint	Description
-GET	/overlays	Fetch all overlays
-POST	/overlays	Create new overlay
-PUT	/overlays/:id	Update overlay
-DELETE	/overlays/:id	Delete overlay
-POST	/start-stream	Start RTSP livestream
-🧪 Example RTSP Command (used internally)
-ffmpeg -rtsp_transport tcp -i rtsp://<camera-url> \
--f hls -hls_time 2 -hls_list_size 5 -hls_flags delete_segments \
-stream/stream.m3u8
-This command is automatically triggered by the backend when the user submits an RTSP URL.
+GET	/overlays	Get all saved overlays
+POST	/overlays	Create a new overlay
+PUT	/overlays/:id	Update an existing overlay
+DELETE	/overlays/:id	Delete an overlay
+POST	/start-stream	Start the RTSP → HLS conversion
 
-🎥 Demo Video Checklist
+🎥 Demo Video
 The demo video demonstrates:
 
-Starting backend and frontend
+Starting the application
 
-Entering RTSP URL
+Entering an RTSP URL
 
-Playing livestream
+Playing the livestream
 
-Adding text overlay
+Adding, updating, and deleting overlays
 
-Adding image overlay
-
-Dragging and resizing overlays
-
-Updating and deleting overlays
-
-Refreshing page and showing persistence
+Real‑time overlay behavior
 
 📌 Notes
-MongoDB is used for persistent overlay storage
+MongoDB is used for persistent storage. Ensure your connection string in app.py is correct.
 
-FFmpeg must be installed and available in system PATH
+FFmpeg must be installed and available in your system's global PATH.
 
-RTSP streams are dynamically started from the UI
-
-HLS is used for browser compatibility
+There may be slight latency in the video feed due to the HLS conversion process.
 
 👨‍💻 Author
 RTSP Livestream Overlay Web Application
